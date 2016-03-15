@@ -30,13 +30,13 @@ def distance(p1, p2):
 
 gold_points_centroids = {}
 
-def get_centroid(p):
-    green_point_min = random.choice(green_points)
-    distance_min = distance(p, green_point_min)
-    for green_point in green_points:
-        if distance(green_point, p) < distance_min:
-            green_point_min, distance_min = green_point, distance(green_point, p)
-    return green_point_min
+def find_nearest_cluster(p, clusters):
+    cluster_min = random.choice(clusters)
+    distance_min = distance(p, cluster_min.centroid)
+    for cluster in clusters:
+        if distance(cluster.centroid, p) < distance_min:
+            cluster_min, distance_min = cluster, distance(cluster.centroid, p)
+    return cluster_min
 
 
 
@@ -45,24 +45,33 @@ def get_centroid(p):
 # calculate new centroids by taking the average of the gold points in each centroid
 
 class Cluster:
-    def __init__(self, points=None, centroid=None):
-        self.points = points
-        self.centroid = centroid
-    def recompute_centroid(self):
+    def __init__(self, points=None):
+        if points == None:
+            self.points = None
+        elif type(points) != type([]):
+            self.points = [points]
+        else:
+            self.points = points
+        self.centroid = self.compute_centroid()
+    def compute_centroid(self):
+        if self.points is None:
+            return None
         xs = [point[0] for point in self.points]
         ys = [point[1] for point in self.points]
         avg_x = float(sum(xs))/len(xs)
         avg_y = float(sum(ys))/len(ys)
         return (avg_x, avg_y)
+    def __repr__(self):
+        return 'Points :' + str(self.points) + '; Centroid: ' + str(self.centroid)
 
 
-
-initial_clusters = [Cluster(centroid=green_point) for green_point in green_points]
+initial_clusters = [Cluster(points=green_point) for green_point in green_points]
 
 
 for gold_point in gold_points:
-    centroid = get_centroid(gold_point)
-    gold_points_centroids[gold_point] = centroid
+    cluster = find_nearest_cluster(gold_point, initial_clusters)
+    cluster.points += [gold_point]
+    gold_points_centroids[gold_point] = cluster
 
 print 'done'
 
