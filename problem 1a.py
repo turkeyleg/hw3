@@ -62,19 +62,28 @@ class Cluster:
         avg_y = float(sum(ys))/len(ys)
         return (avg_x, avg_y)
     def __repr__(self):
-        return 'Points :' + str(self.points) + '; Centroid: ' + str(self.centroid)
+        return 'Cluster - Points :' + str(self.points) + '; Centroid: ' + str(self.centroid)
 
 
 initial_clusters = [Cluster(points=green_point) for green_point in green_points]
 
 
 for gold_point in gold_points:
+    # for each gold point, find the closest cluster (green point)
     cluster = find_nearest_cluster(gold_point, initial_clusters)
+    # add the gold point to the cluster
     cluster.points += [gold_point]
+    # add to the dictionary so we can see where they are assigned
     gold_points_centroids[gold_point] = cluster
 
-print 'done'
-
+print 'Cluster assignments: '
 pprint.pprint(gold_points_centroids)
+
+# now recompute the centroids of our new clusters
+for cluster in initial_clusters:
+    cluster.centroid = cluster.compute_centroid()
+
+print '\nClusters'' recalculated centroids: '
+pprint.pprint(initial_clusters)
 
 

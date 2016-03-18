@@ -35,18 +35,24 @@ def getData(file, sample = None):
 trainData, trainTarget = getData('train')
 
 # http://stackoverflow.com/questions/28033046/matplotlib-scatter-color-by-categorical-factors/28033497
-numColors = trainTarget.unique().shape[0]
-hot = plt.get_cmap('hot')
-cNorm = colors.Normalize(vmin=0, vmax=numColors)
-scalarMap = cm.ScalarMappable(norm=cNorm, cmap=hot)
 
 
 pca = PCA(n_components=2)
 trainData_trns = pca.fit_transform(trainData)
 
+myColorMap = {0:'red', 1:'blue', 2:'green', 3:'black', 4:'purple', 5:'gray', 6:'teal', 7:'pink', 8:'yellow', 9:'orange'}
+getColorFromMap = lambda value: myColorMap[value]
 
+import matplotlib.patches as mpatches
+handles = [mpatches.Patch(color = value, label = item) for item,value in myColorMap.items()]
 
-plt.scatter(x=trainData_trns[:,0], y=trainData_trns[:,1], c=scalarMap.to_rgba(trainTarget))
+scatter = plt.scatter(x=trainData_trns[:,0], y=trainData_trns[:,1],
+            #c=myColorMap.to_rgba(trainTarget)
+            c=trainTarget.apply(getColorFromMap)
+            )
+plt.legend(#handler_map = myColorMap
+        handles=handles, loc=3
+)
 plt.show()
 
 
