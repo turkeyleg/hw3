@@ -22,7 +22,7 @@ gold_points = [(28,145),
                (63,88),
                (50,60),
                (50,30)]
-
+# Euclidean distance between two points
 def distance(p1, p2):
     p1_x, p1_y = p1
     p2_x, p2_y = p2
@@ -30,6 +30,8 @@ def distance(p1, p2):
 
 gold_points_centroids = {}
 
+# for point p, choose cluster that minimizes distance between
+# point and cluster centroid
 def find_nearest_cluster(p, clusters):
     cluster_min = random.choice(clusters)
     distance_min = distance(p, cluster_min.centroid)
@@ -38,11 +40,6 @@ def find_nearest_cluster(p, clusters):
             cluster_min, distance_min = cluster, distance(cluster.centroid, p)
     return cluster_min
 
-
-
-
-# now that you have assigned a centroid to each gold point,
-# calculate new centroids by taking the average of the gold points in each centroid
 
 class Cluster:
     def __init__(self, points=None):

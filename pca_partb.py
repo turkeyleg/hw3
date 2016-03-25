@@ -51,6 +51,7 @@ for n in n_components:
     scores.append(score)
     #plt.plot(n, score)
 
+plt.scatter(n_components, scores)
 plt.plot(n_components, scores, linestyle='--')
 plt.xlabel('Components')
 plt.ylabel('SVM Score')

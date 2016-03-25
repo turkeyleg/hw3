@@ -47,12 +47,8 @@ import matplotlib.patches as mpatches
 handles = [mpatches.Patch(color = value, label = item) for item,value in myColorMap.items()]
 
 scatter = plt.scatter(x=trainData_trns[:,0], y=trainData_trns[:,1],
-            #c=myColorMap.to_rgba(trainTarget)
-            c=trainTarget.apply(getColorFromMap)
-            )
-plt.legend(#handler_map = myColorMap
-        handles=handles, loc=3
-)
+                      c=trainTarget.apply(getColorFromMap))
+plt.legend(handles=handles, loc=3)
 plt.show()
 
 
