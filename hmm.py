@@ -33,6 +33,16 @@ def getData(file='en-ud-train.conllu'):
     print 'DONE'
     return result
 
+def getTestWords(file='test.words'):
+    dataFolder = r'C:\Users\jylkka_a\Downloads\datasets\UD_English'
+    dataPath = os.path.join(dataFolder, file)
+    data = open(dataPath, 'r').read()
+    print 'done reading file'
+    sentences = data.split('\n\n')
+    sentences = [sentence.split('\n') for sentence in sentences]
+    return sentences
+
+
 def getCounts(file='train.counts'):
     emission_counts = defaultdict(int)
     ngram_counts = [defaultdict(int) for _ in range(3)]
@@ -75,15 +85,15 @@ def calc_parameters(emission_counts, ngram_counts):
 
 def predict_tags(input, emission_probabilities, transition_probabilities,
                  emission_counts, ngram_counts,tags):
+
     tags = ['*'] + tags
+    print 'tags = ', tags
 
     for sentence in input:
         # implement Viterbi algorithm
 
-        sentence_words = [word_tag[0] for word_tag in sentence]
-        sentence_tags = [word_tag[1] for word_tag in sentence]
         m = len(sentence)
-        sentence =
+        sentence = ['*'] + sentence
 
         # pi[j,s,s'] stores maximum probability tag sequence ending with tags s, s' at position j
         pi = defaultdict(float)
@@ -94,11 +104,16 @@ def predict_tags(input, emission_probabilities, transition_probabilities,
                 pi[(0, tag1, tag2)] = 0
         pi[(0, '*', '*')] = 1
 
-        for k in range(len(sentence) - 1):
+        for k in range(m):
             for u in tags:
                 for v in tags[1:]:
+                    print 'k = ', k
+                    print 'u = ', u
+                    print 'v = ', v
+                    print 'kth word = ', sentence[k]
+                    print ''
                     likelihood = lambda w: \
-                        pi[(k-1, w, u)] * transition_probabilities[(v,w,u)] * emission_probabilities[(sentence[k], v)]
+                        pi[(k-1, w, u)] * transition_probabilities[(w,u,v)] * emission_probabilities[(v, sentence[k])]
                     # most likely tag
                     best_tag = max(tags, key=likelihood)
                     best_prob = max([likelihood(tag) for tag in tags])
@@ -106,7 +121,10 @@ def predict_tags(input, emission_probabilities, transition_probabilities,
                     pi[(k, u, v)] = best_prob
                     backpointers[(k, u, v)] = best_tag
 
-        output_tags = ['*'] + [m * None]
+                    print 'best_prob = ', best_prob
+                    print 'best_tag = ', best_tag
+
+        output_tags = ['*'] + m * [None]
         # start from the end of the sentence
         import itertools
         bigrams = itertools.permutations(tags, 2)
@@ -118,16 +136,23 @@ def predict_tags(input, emission_probabilities, transition_probabilities,
 
         # go backwards from the end tags we just set
         for k in range(m-2, 0, -1):
-            output_tags[k] = backpointers[(k+2, output_tags[k+1], output_tags[k+2])]
+            try:
+                output_tags[k] = backpointers[(k+2, output_tags[k+1], output_tags[k+2])]
+            except Exception as e:
+                print output_tags[k]
+                print (k+2), output_tags[k+1], output_tags[k+2]
 
         print output_tags
 
-        for thing in zip(sentence, )
+        for thing in zip(sentence, output_tags):
+            print thing
+
+        break
 
 
 
 
-    pass
+
 
 
 
@@ -136,8 +161,10 @@ def predict_tags(input, emission_probabilities, transition_probabilities,
 
 testData = getData('en-ud-train.conllu')
 emission_counts, ngram_counts = getCounts()
-emission_probabilites, transition_probabilities = calc_parameters(emission_counts, ngram_counts)
+emission_probabilities, transition_probabilities = calc_parameters(emission_counts, ngram_counts)
 tags = [one_gram[0] for one_gram in ngram_counts[0]]
+testWords = getTestWords()
 
 
-
+predict_tags(testWords, emission_probabilities, transition_probabilities,
+             emission_counts, ngram_counts, tags)
